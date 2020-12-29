@@ -1,0 +1,112 @@
+package com.example.mvparms.app;
+
+import android.app.Activity;
+import android.app.Application;
+import android.os.Bundle;
+
+import com.blankj.utilcode.util.ActivityUtils;
+import com.example.mvparms.R;
+import com.gyf.immersionbar.ImmersionBar;
+
+import java.util.List;
+
+import timber.log.Timber;
+
+/**
+ * ================================================
+ * 展示 {@link Application.ActivityLifecycleCallbacks} 的用法
+ * <p>
+ * Created by JessYan on 04/09/2017 17:14
+ * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
+ * <a href="https://github.com/JessYanCoding">Follow me</a>
+ * ================================================
+ */
+public class ActivityLifecycleCallbacksImpl implements Application.ActivityLifecycleCallbacks {
+
+    @Override
+    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+        Timber.i("%s - onActivityCreated", activity);
+        List<Activity> list = ActivityUtils.getActivityList();
+        if (!list.contains(activity)) {
+            list.add(activity);
+        }
+
+        if (activity.getLocalClassName().contains("SplashActivity")) {
+            ImmersionBar.with(activity)
+                    .navigationBarEnable(false)
+                    .init();
+        } else {
+            ImmersionBar.with(activity)
+                    .navigationBarColor(R.color.bg)
+                    .fitsSystemWindows(true)
+                    .statusBarColor(R.color.app_base_color)
+                    .init();
+        }
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+        Timber.i("%s - onActivityStarted", activity);
+        if (activity.getLocalClassName().contains("com.innovation.animal.insurancelib")) {
+            ImmersionBar.with(activity)
+                    .fitsSystemWindows(true)  //使用该属性,必须指定状态栏颜色
+                    .statusBarColor(R.color.app_base_color)
+                    .init();
+        }
+
+//        if (!activity.getIntent().getBooleanExtra("isInitToolbar", false)) {
+//            //由于加强框架的兼容性,故将 setContentView 放到 onActivityCreated 之后,onActivityStarted 之前执行
+//            //而 findViewById 必须在 Activity setContentView() 后才有效,所以将以下代码从之前的 onActivityCreated 中移动到 onActivityStarted 中执行
+//            activity.getIntent().putExtra("isInitToolbar", true);
+//            //这里全局给Activity设置toolbar和title,你想象力有多丰富,这里就有多强大,以前放到BaseActivity的操作都可以放到这里
+//            if (activity.findViewById(R.id.toolbar) != null) {
+//                if (activity instanceof AppCompatActivity) {
+//                    ((AppCompatActivity) activity).setSupportActionBar(activity.findViewById(R.id.toolbar));
+//                    Objects.requireNonNull(((AppCompatActivity) activity).getSupportActionBar()).setDisplayShowTitleEnabled(false);
+//                } else {
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                        activity.setActionBar(activity.findViewById(R.id.toolbar));
+//                        Objects.requireNonNull(activity.getActionBar()).setDisplayShowTitleEnabled(false);
+//                    }
+//                }
+//            }
+//            if (activity.findViewById(R.id.toolbar_title) != null) {
+//                ((TextView) activity.findViewById(R.id.toolbar_title)).setText(activity.getTitle());
+//            }
+//            if (activity.findViewById(R.id.toolbar_back) != null) {
+//                activity.findViewById(R.id.toolbar_back).setOnClickListener(v -> activity.onBackPressed());
+//            }
+//        }
+    }
+
+    @Override
+    public void onActivityResumed(Activity activity) {
+        Timber.i("%s - onActivityResumed", activity);
+    }
+
+    @Override
+    public void onActivityPaused(Activity activity) {
+        Timber.i("%s - onActivityPaused", activity);
+    }
+
+    @Override
+    public void onActivityStopped(Activity activity) {
+        Timber.i("%s - onActivityStopped", activity);
+    }
+
+    @Override
+    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+        Timber.i("%s - onActivitySaveInstanceState", activity);
+    }
+
+    @Override
+    public void onActivityDestroyed(Activity activity) {
+        Timber.i("%s - onActivityDestroyed", activity);
+        //横竖屏切换或配置改变时, Activity 会被重新创建实例, 但 Bundle 中的基础数据会被保存下来,移除该数据是为了保证重新创建的实例可以正常工作
+        activity.getIntent().removeExtra("isInitToolbar");
+        List<Activity> list = ActivityUtils.getActivityList();
+        if (list.contains(activity)) {
+            list.remove(activity);
+        }
+    }
+}

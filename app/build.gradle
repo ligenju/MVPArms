@@ -1,0 +1,152 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
+
+    defaultConfig {
+        applicationId "com.example.mvparms"
+        minSdkVersion rootProject.ext.app["minSdkVersion"]
+        targetSdkVersion rootProject.ext.app["targetSdkVersion"]
+        versionCode rootProject.ext.app["versionCode"]
+        versionName rootProject.ext.app["versionName"]
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    compileOptions {//因为静态接口需要在Java 8 下才支持使用，所以我们要使用静态接口，就需要在app的build.gradle文件中配置声明，使用Java 8编译。
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+            buildConfigField "boolean", "URL_DEBUG", "false"
+            buildConfigField "boolean", "URL_PROD", "false"
+            buildConfigField "boolean", "URL_PROD_TEST", "false"
+            buildConfigField "String", "NET_MODEL_URL", "\"http://cloud.innovationai.cn:8000/\""
+            buildConfigField "String", "NET_LOGIN_URL", "\"http://cloud.innovationai.cn:8000/\""
+
+            buildConfigField "String", "TEST_NET_MODEL_URL", "\"http://pre-production.innovationai.cn:8000/\""
+            buildConfigField "String", "TEST_NET_LOGIN_URL", "\"http://pre-production.innovationai.cn:8000/\""
+
+            buildConfigField "String", "CLIENT_ID", "\"1322460100430000129\""
+            buildConfigField "String", "TEST_CLIENT_ID", "\"1322460100430000129\""
+            buildConfigField "com.example.mvparms.constants.ApplicationChannel", "APPLICATION_CHANNEL", "com.example.mvparms.constants.ApplicationChannel.INNOVATIONAI"
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [
+                    BUGLY_ENABLE_DEBUG: "true",
+                    BUGLY_APP_VERSION: rootProject.ext.sdk["versionName"],
+                    BUGLY_APP_CHANNEL: "innovationai"
+            ]
+        }
+        release {
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+            buildConfigField "boolean", "URL_DEBUG", "false"
+            buildConfigField "boolean", "URL_PROD", "true"
+            buildConfigField "boolean", "URL_PROD_TEST", "false"
+            buildConfigField "String", "NET_MODEL_URL", "\"http://cloud.innovationai.cn:8000/\""
+            buildConfigField "String", "NET_LOGIN_URL", "\"http://cloud.innovationai.cn:8000/\""
+
+            buildConfigField "String", "TEST_NET_MODEL_URL", "\"http://pre-production.innovationai.cn:8000/\""
+            buildConfigField "String", "TEST_NET_LOGIN_URL", "\"http://pre-production.innovationai.cn:8000/\""
+
+            buildConfigField "String", "CLIENT_ID", "\"1322460100430000129\""
+            buildConfigField "String", "TEST_CLIENT_ID", "\"1322460100430000129\""
+            buildConfigField "com.example.mvparms.constants.ApplicationChannel", "APPLICATION_CHANNEL", "com.example.mvparms.constants.ApplicationChannel.INNOVATIONAI"
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [
+                    BUGLY_ENABLE_DEBUG: "false",
+                    BUGLY_APP_VERSION: rootProject.ext.sdk["versionName"],
+                    BUGLY_APP_CHANNEL: "innovationai"
+            ]
+        }
+    }
+    lintOptions {
+        abortOnError false
+        checkAllWarnings false
+        checkReleaseBuilds false
+        ignoreWarnings true
+        quiet true
+    }
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java', 'src/main/java-gen']
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    api rootProject.ext.dependencies["appcompat"]
+    implementation 'androidx.work:work-runtime:2.4.0'
+    testImplementation rootProject.ext.dependencies["junit"]
+    androidTestImplementation rootProject.ext.dependencies["androidx-junit"]
+    androidTestImplementation rootProject.ext.dependencies["androidx-espresso-core"]
+    //网络链接的上传以及下载进度,包括 Glide 的图片加载进度
+    api rootProject.ext.dependencies["progressmanager"]
+    //以最简洁的 Api 让 Retrofit 同时支持多个 BaseUrl 以及动态改变 BaseUrl.
+    api rootProject.ext.dependencies["retrofit-url-manager"]
+    api rootProject.ext.dependencies["lifecyclemodel"]
+
+    //arms
+    api rootProject.ext.dependencies["arms"]
+    //自动布局 适配
+    api rootProject.ext.dependencies["arms-autolayout"]
+    //glide
+    api rootProject.ext.dependencies["arms-imageloader-glide"]
+    //工具包
+    api rootProject.ext.dependencies["utilcodex"]
+    // 刷新布局
+    api rootProject.ext.dependencies["refresh-layout-kernel"]
+    api rootProject.ext.dependencies["refresh-header-classics"]
+    api rootProject.ext.dependencies["refresh-footer-classics"]
+    api rootProject.ext.dependencies["refresh-header-material"]
+    //butterknife
+    api rootProject.ext.dependencies["butterknife"]
+    annotationProcessor(rootProject.ext.dependencies["butterknife-compiler"]) {
+        exclude module: 'annotation'
+    }
+    //注解
+    api rootProject.ext.dependencies["dagger2-android"]
+    api rootProject.ext.dependencies["dagger2-android-support"]
+    annotationProcessor rootProject.ext.dependencies["dagger2-android-processor"]
+    annotationProcessor rootProject.ext.dependencies["dagger2-compiler"]
+    //分页加载功能
+    api(rootProject.ext.dependencies["paginate"]) {
+        exclude module: 'recyclerview'
+    }
+    //android 4.4以上沉浸式状态栏和沉浸式导航栏管理
+    api rootProject.ext.dependencies["immersionbar"]
+    api rootProject.ext.dependencies["immersionbar-components"]
+    //卡片CardView
+    api rootProject.ext.dependencies["cardview"]
+    api rootProject.ext.dependencies["multidex"]
+    compileOnly rootProject.ext.dependencies["lombok"]
+    annotationProcessor rootProject.ext.dependencies["lombok"]
+    testCompileOnly rootProject.ext.dependencies["lombok"]
+    testAnnotationProcessor rootProject.ext.dependencies["lombok"]
+    //rxjava retofit库
+    api rootProject.ext.dependencies["rxandroid3"]
+    api rootProject.ext.dependencies["rxjava3"]
+    api rootProject.ext.dependencies["retrofit"]
+    //导入retrofit
+    api rootProject.ext.dependencies["retrofit-converter-gson"]
+    //转换器，请求结果转换成Model
+    api rootProject.ext.dependencies["retrofit-adapter-rxjava2"]
+    api rootProject.ext.dependencies["rxbinding2"]
+    //配合Rxjava 使用
+    api rootProject.ext.dependencies["okhttp3-logging-interceptor"]
+    //adapter加载库
+    api rootProject.ext.dependencies["BaseRecyclerViewAdapterHelper"]
+    api 'com.github.GrenderG:Toasty:1.5.0'
+    api 'com.whosmyqueen.widget:sweet-alert-dialog:1.0.6'
+
+    api(rootProject.ext.dependencies["arouter"]) {
+        exclude module: 'support-v4'
+        exclude module: 'support-annotations'
+    }
+}
